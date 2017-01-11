@@ -7,7 +7,7 @@ import (
 // Exec executes the command in samfile for the current dot.
 // It returns the address to which the new content has been inserted
 // and all new dot addresses.
-func (f *Samfile)exec() (insertAddress Address, newDots []Address, err error) {
+func (f *Samfile) exec() (insertAddress Address, newDots []Address, err error) {
 	f.pos = 0
 	if len(f.tokens) == 0 {
 		return f.dot, []Address{f.dot}, nil
@@ -26,7 +26,7 @@ func (f *Samfile)exec() (insertAddress Address, newDots []Address, err error) {
 }
 
 // ExecCommand executes the command part of the sam command after the address parts has been executed.
-func (f *Samfile)execCommand() (insertAddress Address, newDots []Address, err error) {
+func (f *Samfile) execCommand() (insertAddress Address, newDots []Address, err error) {
 	t := f.currentToken()
 
 	// Commands may be preceded by blanks.
@@ -35,7 +35,7 @@ func (f *Samfile)execCommand() (insertAddress Address, newDots []Address, err er
 		t = f.currentToken()
 	}
 	if t.id != cCMD {
-		return insertAddress, newDots, errors.New("command expected: "+t.s)
+		return insertAddress, newDots, errors.New("command expected: " + t.s)
 	}
 
 	switch t.s {
@@ -44,21 +44,21 @@ func (f *Samfile)execCommand() (insertAddress Address, newDots []Address, err er
 		f.pos++
 		t = f.currentToken()
 		if t.id != cTEXT {
-			return insertAddress, newDots, errors.New("command "+c+" must be followed by append text: "+t.s)
+			return insertAddress, newDots, errors.New("command " + c + " must be followed by append text: " + t.s)
 		}
 		newContent := []byte(t.s)
 		var newdot Address
 		if c == "a" { // append (after dot)
 			insertAddress.from = f.dot.to
 			insertAddress.to = f.dot.to
-			newdot = Address{f.dot.to, f.dot.to+len(newContent)}
+			newdot = Address{f.dot.to, f.dot.to + len(newContent)}
 		} else if c == "i" { // insert (before dot)
 			insertAddress.from = f.dot.from
 			insertAddress.to = f.dot.from
-			newdot = Address{f.dot.from, f.dot.from+len(newContent)}
+			newdot = Address{f.dot.from, f.dot.from + len(newContent)}
 		} else if c == "c" { // change (replace dot)
 			insertAddress = f.dot
-			newdot = Address{f.dot.from, f.dot.from+len(newContent)}
+			newdot = Address{f.dot.from, f.dot.from + len(newContent)}
 		}
 		newDots = append(newDots, newdot)
 		f.dot = newdot
@@ -75,14 +75,14 @@ func (f *Samfile)execCommand() (insertAddress Address, newDots []Address, err er
 		f.pos++
 		t = f.currentToken()
 		if t.id != cRE {
-			return insertAddress, newDots, errors.New("command s must be followed by a regexp: "+t.s)
+			return insertAddress, newDots, errors.New("command s must be followed by a regexp: " + t.s)
 		}
 		re := t.re
 		f.pos++
 		t = f.currentToken()
 		s := t.s
 		if t.id != cTEXT {
-			return insertAddress, newDots, errors.New("command s misses the replacement text: "+t.s)
+			return insertAddress, newDots, errors.New("command s misses the replacement text: " + t.s)
 		}
 		b := f.b[f.dot.from:f.dot.to]
 		idx := re.FindSubmatchIndex(b)
@@ -93,9 +93,9 @@ func (f *Samfile)execCommand() (insertAddress Address, newDots []Address, err er
 			return insertAddress, newDots, nil
 		}
 		newContent := re.Expand(nil, []byte(s), b, idx)
-		insertAddress.from = f.dot.from+idx[0]
-		insertAddress.to = f.dot.from+idx[1]
-		newDots = append(newDots, Address{f.dot.from+idx[0], f.dot.from+idx[0]+len(newContent)})
+		insertAddress.from = f.dot.from + idx[0]
+		insertAddress.to = f.dot.from + idx[1]
+		newDots = append(newDots, Address{f.dot.from + idx[0], f.dot.from + idx[0] + len(newContent)})
 		f.insertContent(insertAddress, newContent)
 		return insertAddress, newDots, nil
 	case "g", "v": // conditional if
@@ -103,7 +103,7 @@ func (f *Samfile)execCommand() (insertAddress Address, newDots []Address, err er
 		f.pos++
 		t = f.currentToken()
 		if t.id != cRE {
-			return insertAddress, newDots, errors.New("command "+c+" must be followed by a regexp: "+t.s)
+			return insertAddress, newDots, errors.New("command " + c + " must be followed by a regexp: " + t.s)
 		}
 		m := t.re.Match(f.b[f.dot.from:f.dot.to])
 		if (m == true && c == "g") || (m == false && c == "v") {
@@ -119,7 +119,7 @@ func (f *Samfile)execCommand() (insertAddress Address, newDots []Address, err er
 
 		// Special case: cBLANK is treated as /^.*$/ is already replaced by the tokenizer.
 		if t.id != cRE {
-			return insertAddress, newDots, errors.New("command x must be followed by a regexp: "+t.s)
+			return insertAddress, newDots, errors.New("command x must be followed by a regexp: " + t.s)
 		}
 
 		idxs := t.re.FindAllIndex(f.b[f.dot.from:f.dot.to], -1)
@@ -132,16 +132,16 @@ func (f *Samfile)execCommand() (insertAddress Address, newDots []Address, err er
 		}
 
 		// Add offset to idxs, because the match was local to the current dot.
-		for i:=0; i<len(idxs); i++ {
+		for i := 0; i < len(idxs); i++ {
 			idxs[i][0] += f.dot.from
 			idxs[i][1] += f.dot.from
 		}
 
-		f.pos++	// Position of next command.
-		commandPos := f.pos; // Save this position and reset it before every execution in the loop.
-		endAddr := 0 // save the end of the last edit.
+		f.pos++             // Position of next command.
+		commandPos := f.pos // Save this position and reset it before every execution in the loop.
+		endAddr := 0        // save the end of the last edit.
 		oldLen := len(f.b)
-		for i:=0; i<len(idxs); i++ {
+		for i := 0; i < len(idxs); i++ {
 			// Set the current dot to the i'th match.
 			f.dot.from = idxs[i][0]
 			f.dot.to = idxs[i][1]
@@ -168,13 +168,13 @@ func (f *Samfile)execCommand() (insertAddress Address, newDots []Address, err er
 			}
 
 			// Include the change to the total change address.
-			if i==0 {
+			if i == 0 {
 				insertAddress.from = iA.from
 			}
 			insertAddress.to = iA.to
 
 			// Shift all remaining addresses.
-			for k := i+1; k < len(idxs); k++ {
+			for k := i + 1; k < len(idxs); k++ {
 				idxs[k][0] += shift
 				idxs[k][1] += shift
 			}
@@ -190,24 +190,24 @@ func (f *Samfile)execCommand() (insertAddress Address, newDots []Address, err er
 		f.pos++
 		t = f.currentToken()
 		if t.id != cRE {
-			return insertAddress, newDots, errors.New("command X must be followed by a regexp: "+t.s)
+			return insertAddress, newDots, errors.New("command X must be followed by a regexp: " + t.s)
 		}
 		idxs := t.re.FindAllIndex(f.b[f.dot.from:f.dot.to], -1)
 		if idxs == nil {
 			insertAddress = f.dot
 			newDots = append(newDots, f.dot)
 		} else {
-			for i:=0; i<len(idxs); i++ {
+			for i := 0; i < len(idxs); i++ {
 				if i == 0 {
 					insertAddress.from = f.dot.from + idxs[i][0]
 				}
 				insertAddress.to = f.dot.from + idxs[i][1]
-				newDots = append(newDots, Address{from:idxs[i][0]+f.dot.from, to:idxs[i][1]+f.dot.from})
+				newDots = append(newDots, Address{from: idxs[i][0] + f.dot.from, to: idxs[i][1] + f.dot.from})
 			}
 		}
 		return insertAddress, newDots, nil
 	default:
-		return insertAddress, newDots, errors.New("unknown command: "+t.s)
+		return insertAddress, newDots, errors.New("unknown command: " + t.s)
 	}
 	return insertAddress, newDots, errors.New("unreachable")
 }

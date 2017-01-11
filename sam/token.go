@@ -16,14 +16,14 @@ const (
 	cDOLLAR            // $ character
 	cBLANK             // blank, actually space
 	cRE                // regular expression
-	cTEXT // text (insert, append, change, substitute)
+	cTEXT              // text (insert, append, change, substitute)
 	cCMD               // command
 )
 
 type token struct {
-	id int    // token id
-	s  string // original token string content
-	n  int    // number for id == cNUM
+	id int            // token id
+	s  string         // original token string content
+	n  int            // number for id == cNUM
 	re *regexp.Regexp // regular expression for cRE
 }
 
@@ -97,13 +97,13 @@ func nextToken(s string, expectText bool) (t token, rem string, err error) {
 				if expectText == true {
 					return token{id: cTEXT, s: unquote(s[1:i])}, s[i+1:], nil
 				} else {
-					txt := unquote(s[1:i]);
+					txt := unquote(s[1:i])
 					// default flags m: match ^ and $ for lines
 					// default flags can be overwritten with prefixing the regexp
 					// e.g: revert to non-line mode: /(?-m).../
 					// e.g: let . match \n: /(?s).../
 					defaultflags := "(?m)"
-					re, rerr := regexp.Compile(defaultflags+txt)
+					re, rerr := regexp.Compile(defaultflags + txt)
 					if rerr != nil {
 						return t, s, rerr
 					}
@@ -170,7 +170,7 @@ func tokenize(s string) (tokens []token, err error) {
 
 // Unqoute removes quotes from slash.
 func unquote(s string) (u string) {
-	re := regexp.MustCompile("\\\\/");
-	u = re.ReplaceAllString(s, "/");
+	re := regexp.MustCompile("\\\\/")
+	u = re.ReplaceAllString(s, "/")
 	return u
 }

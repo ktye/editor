@@ -22,14 +22,14 @@ func (f *Samfile) parseAddressRange() (err error) {
 			if relative == 1 || relative == -1 { // address ends in + or -: implicitly add 1
 				newdot = f.parseRelativeLineNumber(newdot, section, relative)
 			} else if f.pos > 0 && f.tokens[f.pos-1].id == cCOMMA { // address ends in ,: implicitly add $
-				newdot.to = len(f.b)-1
+				newdot.to = len(f.b) - 1
 			}
 			// Addresses that stretch too far are clipped to the last position.
 			if newdot.from >= len(f.b) {
-				newdot.from = len(f.b)-1
+				newdot.from = len(f.b) - 1
 			}
 			if newdot.to >= len(f.b) {
-				newdot.to = len(f.b)-1
+				newdot.to = len(f.b) - 1
 			}
 			f.dot.from = newdot.from
 			f.dot.to = newdot.to
@@ -95,9 +95,9 @@ func (f *Samfile) parseAddressRange() (err error) {
 				return errors.New("unexpected $ in relative address")
 			}
 			if section == 1 {
-				newdot.from = len(f.b)-1
+				newdot.from = len(f.b) - 1
 			}
-			newdot.to = len(f.b)-1
+			newdot.to = len(f.b) - 1
 		case cBLANK: // ignore
 		case cRE:
 			dir := 1

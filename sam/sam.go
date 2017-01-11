@@ -28,7 +28,7 @@ func Edit(b []byte, cmd string, initDot string) (out []byte, addr string, err er
 	rangeErr := errors.New("intersecting edits")
 	var endAddr int = 0
 	var oldLen int = len(f.b)
-	for i:=0; i<len(initDots); i++ {
+	for i := 0; i < len(initDots); i++ {
 
 		// Set the next initial dot.
 		f.dot = initDots[i]
@@ -56,7 +56,7 @@ func Edit(b []byte, cmd string, initDot string) (out []byte, addr string, err er
 		finalDots = append(finalDots, newDots...)
 
 		// Shift all following initial dots.
-		for k:=i+1; k<len(initDots); k++ {
+		for k := i + 1; k < len(initDots); k++ {
 			initDots[k].from += shift
 			initDots[k].to += shift
 		}

@@ -1,0 +1,166 @@
+function Layout() {
+	this.columns = []
+
+	// add a column
+	this.AddColumn = function() {
+		this.columns.push( new Column(this) )
+		var col = this.columns[this.columns.length-1]
+		if (this.columns.length > 1) {
+			col.relWidth = 1 / this.columns.length
+			for (var i=0; i<this.columns.length-1; i++) {
+				this.columns[i].relWidth *= (this.columns.length-1) / this.columns.length
+			}
+		}
+		this.Resize()
+		return col
+	}
+
+	// normalize all columns
+	this.Normalize = function() {
+		for (var i=0; i<this.columns.length; i++) {
+			this.columns[i].weight = 1
+			this.columns[i].div.style.flex = 1
+		}
+	}
+
+	// find an existing window by file name
+	this.FindWindow = function(file) {
+		for (var i=0; i<this.columns.length; i++) {
+			var col = this.columns[i]
+			for (var k=0; k<col.windows.length; k++) {
+				if (col.windows[k].GetFile() == file) {
+					return col.windows[k]
+				}
+			}
+		}
+		return undefined
+	}
+	
+	
+	// drop a window to a new position
+	this.DropWindow = function(column, index, x, y, x0, y0) {
+		var dx = x-x0
+		var dy = y-y0
+
+		// get target column
+		var newcol = -1;
+		for (var i=0; i<this.columns.length; i++) {
+			if (this.columns[i].IsInside(x)) {
+				newcol = i
+				break
+			}
+		}
+		if (newcol == -1) {
+			console.log('cannot get target column')
+			return
+		}
+
+		// get target index
+		newindex = 0;		
+		var windows = this.columns[newcol].windows
+		for (var i=0; i<windows.length; i++) {
+			if (windows[i].IsInside(y-20)) { // use y-20 to be able to put it at index 0 (top)
+				newindex = i + 1
+				break
+			}
+		}
+
+		// top window, move left/right: change column width
+		if ((index == 0) && (Math.abs(dx) > Math.abs(dy))) {
+			if ((dx < 0) && (column > 0) && (-dx < this.columns[column-1].relWidth*window.innerWidth/2)) {
+				var rel = -dx / window.innerWidth
+				this.columns[column].relWidth += rel
+				this.columns[column-1].relWidth -= rel
+				this.Resize()
+				return
+			}
+			if ((dx > 0) && (column > 0) && (dx < this.columns[column].relWidth*window.innerWidth/2)) {
+				var rel = dx / window.innerWidth
+				this.columns[column].relWidth -= rel
+				this.columns[column-1].relWidth += rel
+				this.Resize()
+				return
+			}
+		}
+
+		// same window, moved down
+		if ((newcol == column) && (newindex-1 == index)) {
+			if ((Math.abs(dx) > Math.abs(dy))&&(this.columns[column].windows.length > 1)) {
+				var col = this.AddColumn()
+				var win = this.columns[column].RemoveWindow(index)
+				col.InsertWindow(win, 0)
+				this.Resize()
+				return
+			}
+			if (index == 0) {
+				this.columns[column].AddWindow(0)
+				return
+			}
+			var rel = dy / window.innerHeight
+			this.columns[column].windows[index].relHeight -= rel
+			this.columns[column].windows[index-1].relHeight += rel
+			this.Resize()
+			return
+		}
+
+		// same window, moved up: increase size
+		if ((newcol == column) && (newindex == index)) {
+			var rel = dy / window.innerHeight
+			this.columns[column].windows[index].relHeight -= rel
+			this.columns[column].windows[index-1].relHeight += rel
+			this.Resize()
+			return
+		}
+
+
+
+		// move window
+		var newcolumn = this.columns[newcol]
+		var nextwin = newcolumn.windows[newindex] // may be undefined, if newindex is last index
+		var win = this.columns[column].RemoveWindow(index)
+		newcolumn.InsertWindow(win, nextwin)
+		this.Resize()
+	}
+}
+
+Layout.prototype.Resize = function() {
+	var w = window.innerWidth
+	var h = window.innerHeight
+	var minheight = 22;
+	var x = 0
+	var sumWidth = 0
+	for (var c=0; c<this.columns.length; c++) {
+		var col = this.columns[c]
+		sumWidth += col.relWidth
+	}
+	for (var c=0; c<this.columns.length; c++) {
+		var col = this.columns[c]
+		col.relWidth /= sumWidth // adjust relWidths to 1
+		col.width = w * col.relWidth
+		col.left = x
+		x += col.width
+		col.div.style.left = col.left + "px"
+		col.div.style.width = col.width + "px"
+		var h = window.innerHeight - minheight * col.windows.length
+		var y = 0
+		var sumHeight = 0
+		for (var i=0; i<col.windows.length; i++) {
+			var win = col.windows[i]
+			if (win.relHeight * h < minheight)
+				win.relHeight = 0
+			sumHeight += win.relHeight
+		}
+		for (var i=0; i<col.windows.length; i++) {
+			var win = col.windows[i]
+			win.relHeight /= sumHeight // adjust relHeights to sum up to 1
+			win.height = win.relHeight * h + minheight
+			win.top = y
+			y += win.height
+			win.div.style.top = win.top + "px"
+			win.div.style.height = win.height + "px"
+			win.div.style.width = col.width + "px"
+			win.editordiv.style.height = (win.height - 22) + "px"
+			win.editordiv.style.width = col.width + "px"
+		}
+	}
+}

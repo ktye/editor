@@ -18,12 +18,12 @@ type Address struct {
 }
 
 // Length returns the length of the Address.
-func (a *Address)Length() int {
+func (a *Address) Length() int {
 	return a.to - a.from
 }
 
 // GetRange returns the start and end position of the Address.
-func (a *Address)GetRange() (from, to int) {
+func (a *Address) GetRange() (from, to int) {
 	return a.from, a.to
 }
 
@@ -67,7 +67,7 @@ func InitSamFile(b []byte, cmd string, initDot string) (f Samfile, initDots []Ad
 }
 
 // ParseInitialDot parses the initial dot string and returns its addresses representation.
-func (f *Samfile)parseInitialDot(s string) (a []Address, err error) {
+func (f *Samfile) parseInitialDot(s string) (a []Address, err error) {
 	if s == "" {
 		a = append(a, Address{from: 0, to: -1}) // will be expanded to whole file
 		return a, nil
@@ -85,9 +85,9 @@ func (f *Samfile)parseInitialDot(s string) (a []Address, err error) {
 		toline, _ := strconv.Atoi(w[3])
 		tochar, _ := strconv.Atoi(w[4])
 		if fromline < 1 || fromline > len(f.lineAddresses) || toline < 1 || toline > len(f.lineAddresses) {
-			return a, errors.New("initial line address is out of range: "+v[i])
+			return a, errors.New("initial line address is out of range: " + v[i])
 		}
-		addr := Address{from: f.lineAddresses[fromline-1].from+fromchar-1, to: f.lineAddresses[toline-1].from + tochar-1}
+		addr := Address{from: f.lineAddresses[fromline-1].from + fromchar - 1, to: f.lineAddresses[toline-1].from + tochar - 1}
 		a = append(a, addr)
 	}
 	return a, nil
@@ -108,7 +108,7 @@ func GetLineAddresses(b []byte) (a []Address) {
 	for i := 0; i < len(b); i++ {
 		if b[i] == '\n' {
 			a = append(a, Address{start, i})
-			start = i+1
+			start = i + 1
 		}
 	}
 	return a
@@ -128,7 +128,7 @@ func LineAddr(p int, from bool, lineAddresses []Address, b []byte) (line, ch int
 
 	// The address is the last character in the file.
 	if p == len(b)-1 {
-		i := len(lineAddresses)-1
+		i := len(lineAddresses) - 1
 		return i + 1, lineAddresses[i].to - lineAddresses[i].from + 1
 	}
 
