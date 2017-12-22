@@ -1,0 +1,168 @@
+// attach an editor to an element: new Editor(element)
+function Editor(win) {
+	this.win = win
+	this.editor = CodeMirror(win.editordiv, {
+		lineNumbers: true,
+		matchBrackets: true,
+		tabSize: 8,
+		indentUnit: 8,
+		indentWithTabs: true,
+		smartIndent: true,
+		lineWrapping: false,
+	});
+
+	this.GetText = function() {
+		return this.editor.getValue()
+	}
+
+	// search next occurance of regex
+	this.Search = function(s) {
+		var re = new RegExp(s)
+		var sc = this.editor.getSearchCursor(re, this.editor.getCursor())
+		if (sc.findNext()) {
+			this.editor.setSelection(sc.from(), sc.to())
+		} else {
+			// unselect and goto start
+			this.editor.setSelection({line:0,ch:0},{line:0,ch:0}, {scroll:false})
+		}
+	}
+
+	// SetMode sets the syntax mode.
+	// If the mode-string is undefined, it tries to auto detect it from the window.title
+	// using the 'commander'.
+	this.SetMode = function(mode) {
+		if (mode == undefined) {
+			mode = ""
+		}
+		this.editor.setOption("mode", mode)
+	}
+
+	// GetSelections returns an array of the indexes of the current selections.
+	// It is interpreted as cmd.RuneRanges in go.
+	this.GetSelections = function(s) {
+		var sets = this.editor.listSelections()
+		var selections = []
+		var getRange = function(edt, r) {
+			var from = edt.indexFromPos(r.anchor)
+			var to = edt.indexFromPos(r.head)
+			return [from, to]
+		}
+		for (var i=0; i<sets.length; i++) {
+			var range = getRange(this.editor, sets[i])
+			selections.push(range)
+		}
+		return selections
+	}
+	
+	// SetSelections sets the cursor to the selections passed in the array.
+	// The string has the same format as GetSelections.
+	this.SetSelections = function(selections) {
+		if (selections == undefined) {
+			return
+		}
+		var sets = []
+		for (var i=0; i<selections.length; i++) {
+			var from = this.editor.posFromIndex(selections[i][0])
+			var to = this.editor.posFromIndex(selections[i][1])
+			sets.push({anchor:from, head:to})
+		}
+		this.editor.setSelections(sets)
+		this.editor.focus()
+	}
+
+	// double-click on a word: execute the default command with this word as argument.
+	this.editor.on('dblclick', function(cm, ev) {
+		var cmd = win.GetDefaultCommand()
+		var word = findClickedWord(cm, ev)
+		console.log(word)
+		ev.preventDefault()
+		if (word.word.length > 0)
+			cmd = cmd + " " + word.word
+		win.Execute(cmd)
+	})
+
+	// set the border color to red if the editor is active
+	var edt = this
+	this.editor.on('focus', function() {
+		edt.win.div.style.border = '1px solid red'
+	})
+	this.editor.on('blur', function() {
+		edt.win.div.style.border = '1px solid black'
+	})
+
+	// mouse-click callback:
+	//	middle click: executed selected text which may contain multiple words.
+	//	right click: find next.
+	this.editor.on('mousedown', function(cm, evt) {
+		if (evt.button == 2) { // Find next.
+			var s = cm.getSelection()
+			if (s == "") {
+				evt.preventDefault()
+				return
+			}
+			var c = cm.getSearchCursor(s, cm.getCursor())
+			if (c.findNext()) {
+				cm.setSelection(c.pos.from, c.pos.to)
+				evt.preventDefault()
+				return
+			}
+			// Start from top.
+			c = cm.getSearchCursor(s)
+			if (c.findNext()) {
+				cm.setSelection(c.pos.from, c.pos.to)
+				evt.preventDefault()
+			}
+		} else if (evt.button == 1) { // Execute selected text.
+			evt.preventDefault()
+			var cmd = cm.getSelection()
+			if (cmd.length > 0)
+				win.Execute(cmd)
+		}
+	})
+	
+	this.editor.on('contextmenu', function(cm, evt) {
+		// evt.preventDefault()
+		return false
+	})
+
+	var win = this.win
+	this.editor.on('change', function(cm, ev) {
+		win.MarkClean(false)
+	})
+
+}
+
+function findClickedWord(cm, ev) {
+	var x = ev.pageX 
+	var y = ev.pageY
+	var pos = cm.coordsChar({left:x, top:y}, "page")
+	var doc = cm.getDoc()
+	var line = doc.getLine(pos.line)
+	return findWordAround(line, pos.ch)
+}
+
+// findWordAround looks for a complete word in s, that should be returned,
+// when a user clicked at character index idx.
+// It includes special non-blank characters.
+// TODO: allow "whitespace inside \"quoted text\"".
+function findWordAround(s, idx) {
+	var start = idx - 1
+	while (start >= 0) {
+		if ((s[start] == "\t") || (s[start] == " ")) {
+			start++
+			break
+		}
+		start--
+	}
+	if (start < 0) {
+		start = 0
+	}
+	var end = start
+	while (end < s.length) {
+		if ((s[end] == "\t") || (s[end] == " ")) {
+			break
+		}
+		end++
+	}
+	return {word: s.substr(start, end-start), start: start, end: end, pos: idx}
+}

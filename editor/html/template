@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<style>
+:codemirror/codemirror.css
+:editor.css
+</style>
+<script type="application/javascript">
+:codemirror/codemirror_js
+:codemirror/searchcursor_js
+:codemirror/matchbrackets_js
+:codemirror/go_js
+:codemirror/markdown_js
+:codemirror/javascript_js
+var root = '__ROOT__'
+:call_js
+:menu_js
+:editor_js
+:window_js
+:column_js
+:layout_js
+:main_js
+</script>
+</head>
+<body onload="init()">
+<div class="maincontainer" id="maincontainer"></div>
+</body>
+</html>

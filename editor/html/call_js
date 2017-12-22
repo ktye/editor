@@ -1,0 +1,71 @@
+// Call server request and update window content.
+// It sends the editor content as a post request to the server
+// with additional data about the file name, the command being called and
+// the text selection range.
+function Call(win, command) {
+	var req = new XMLHttpRequest()
+
+	// This callback is executed when the server response has arrived.
+	req.onreadystatechange = function() {
+		var DONE = this.DONE || 4
+		if (this.readyState == DONE) {
+			var res
+			try {
+				res = JSON.parse(req.responseText);
+			} catch(e) {
+				console.log("text:", req.reponseText)
+				console.log(e)
+				return
+			}
+			
+			var newwin = win
+			if (res.Replace == "") {
+				newwin = win.column.layout.FindWindow(res.Name)
+			} else {
+				newwin = win.column.layout.FindWindow(res.Replace)
+			}
+			if (newwin == undefined) {
+				newwin = win.column.AddWindow(win.index+1)
+			}
+			newwin.SetTitle(res.Name)
+			newwin.SetTags(res.Tags)
+			newwin.SetDefaultCommand(res.Default)
+
+			if (res.Type == "html") {
+				newwin.editordiv.innerHTML = res.Text
+			} else if (res.Type == "javascript") {
+				// Delete all children from the new editordiv.
+				while (newwin.editordiv.firstChild) {
+    					newwin.editordiv.removeChild(newwin.editordiv.firstChild)
+				}
+				// Execute the javascript code and call load, which should be defined.
+				eval(res.Text)
+				load(newwin)
+			} else {
+				if (newwin.editor == undefined) {
+					newwin.editor = new Editor(newwin)
+				}
+				newwin.editor.editor.setValue(res.Text)
+				newwin.editor.SetMode(res.Type.split("/")[1])
+				newwin.editor.SetSelections(res.Selections)
+				newwin.editor.editor.focus()
+			}
+			newwin.MarkClean(res.Clean)
+		}
+	}
+
+	var r = {
+		Root: root,
+		Command: command,
+		Name: win.title,
+		Tags: win.winbuttons.value,
+		Default: win.defaultCommand,
+	}
+	if (win.editor != undefined) {
+		r.Selections = win.editor.GetSelections()
+		r.Text = win.editor.GetText()
+	}
+	
+	req.open("POST", root, true)
+	req.send(JSON.stringify(r))
+}
