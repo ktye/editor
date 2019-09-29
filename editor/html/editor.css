@@ -55,7 +55,7 @@ div.winheader {
 	height: 20px; 
 	background-color: #FFFFEA;
 	border: 1px solid black;
-	font-family: "APL385 Unicode", monospace;
+	font-family: monospace;
 	font-size: 12pt;
 	background-color: #FFFFEA;
 }
@@ -73,7 +73,7 @@ div.windowmenu {
 }
 button.menubutton {
 	border: none;
-	font-family: "APL385 Unicode", monospace;
+	font-family: monospace;
 	font-size: 12pt;
 	background-color: #FFFFEA;
 }
@@ -103,7 +103,7 @@ div.winboxchanged {
 }
 input.wintitle {
 	box-sizing: border-box;
-	font-family: "APL385 Unicode", monospace;
+	font-family: monospace;
 	font-size: 12pt;
 	background-color: #FFFFEA;
 	border: none;
@@ -115,7 +115,7 @@ input.wintitle {
 }
 input.winbuttons {
 	box-sizing: border-box;
-	font-family: "APL385 Unicode", monospace;
+	font-family: monospace;
 	font-size: 12pt;
 	background-color: #FFFFEA;
 	border: none;
@@ -133,7 +133,7 @@ input.winbuttons {
 	width: 100%;
 	height: 100%;
 	background: #ffffea;
-	font-family: "APL385 Unicode", monospace;
+	font-family: monospace;
 	font-size: 12pt;
 }
 .CodeMirror-simplescroll-vertical {

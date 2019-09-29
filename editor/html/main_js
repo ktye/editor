@@ -1,6 +1,7 @@
 // Main creates the front-end
 var layout
 function init() {
+	document.addEventListener('contextmenu',function(e){e.preventDefault()})
 	layout = new Layout()
 	var col = layout.AddColumn()
 	col.AddWindow(0)
