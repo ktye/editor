@@ -1,0 +1,7 @@
+(
+echo "package main"
+echo 'import "math"'
+w -go < /c/k/i/k.w
+) > k.go
+
+go fmt k.go

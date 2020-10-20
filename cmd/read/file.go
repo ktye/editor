@@ -28,6 +28,8 @@ func (p *program) handleFile(file string, addr string) error {
 		{regexp.MustCompile(`(?i)\.jpe?g$`), "", "", "", p.forward("image", nil)},
 		{regexp.MustCompile(`(?i)\.png$`), "", "", "", p.forward("image", nil)},
 		{regexp.MustCompile(`.zip$`), "", "", "", p.zip},
+		{regexp.MustCompile(`.j$`), "ked", "-draw -run Write", "text/k", p.read},
+		{regexp.MustCompile(`.k$`), "ked", "-draw -run Write", "text/k", p.read},
 	}
 	for _, t := range tab {
 		if t.re.MatchString(file) {
