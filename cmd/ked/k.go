@@ -1031,6 +1031,8 @@ func match(x0 I, x1 I) (r I) {
 		x7 = I(x3 << 3)
 	case 4:
 		x7 = I(x3 << 4)
+	case 5:
+		x7 = I(x3 << 2)
 	default:
 		for x8 = 0; x8 < x3; x8++ {
 			if 0 == match(MI[x4>>2], MI[x5>>2]) {
