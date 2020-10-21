@@ -2338,6 +2338,9 @@ func asi(x0 I, x1 I, x2 I) (r I) {
 			panic("trap")
 		}
 		x12 = I(take(x0, x4))
+		if 1 == x4 {
+			x12 = I(enl(x12))
+		}
 		x13 = I(x12 + 8)
 		rx(x1)
 		x14 = I(fst(x1))
@@ -2416,20 +2419,18 @@ func asi(x0 I, x1 I, x2 I) (r I) {
 		dx(x2)
 		return x12
 	}
-	if 0 != (i32b((x3 == 6)) + (i32b((x3 == 5)) * i32b((x19 == 5)))) {
+	if x3 == 6 {
 		x12 = I(take(x0, x4))
-		if 6 == x3 {
-			if 1 == x4 {
-				x12 = I(enl(x12))
-			}
-			if 1 == x7 {
-				x2 = I(enl(x2))
-				x20 = I(1)
-				x19 = I(6)
-			}
-			if 6 != x19 {
-				x2 = I(lx(x2))
-			}
+		if 1 == x4 {
+			x12 = I(enl(x12))
+		}
+		if 1 == x7 {
+			x2 = I(enl(x2))
+			x20 = I(1)
+			x19 = I(6)
+		}
+		if 6 != x19 {
+			x2 = I(lx(x2))
 		}
 		x13 = I(x12 + 8)
 		if x7 != x20 {
