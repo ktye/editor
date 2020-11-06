@@ -6,7 +6,8 @@ func ini(x0 I) (r I) {
 	//defer func(){fmt.Printf("ini: r=%x\n", r)}()
 	var x1, x2 I
 	_, _ = x1, x2
-	MJ[0>>3] = J(289360742959022340)
+	MI[0>>2] = I(134480132)
+	MI[4>>2] = I(67372048)
 	MI[12>>2] = I(1887966018)
 	MI[128>>2] = I(x0)
 	x1 = I(256)
@@ -324,26 +325,25 @@ func up(x0 I, x1 I, x2 I) (r I) {
 	x3 = I(mk((x1 + 1), x2))
 	x4 = I(x0 + 8)
 	x5 = I(x3 + 8)
-	switch x1 {
-	case 1:
+	if 1 == x1 {
 		for x6 = 0; x6 < x2; x6++ {
 			MI[x5>>2] = I(I(MC[(x4 + x6)]))
 			x5 = I(x5 + 4)
 		}
-	case 2:
+	} else if 2 == x1 {
 		for x6 = 0; x6 < x2; x6++ {
 			MF[x5>>3] = F(F(SI(MI[x4>>2])))
 			x5 = I(x5 + 8)
 			x4 = I(x4 + 4)
 		}
-	case 3:
+	} else if 3 == x1 {
 		for x6 = 0; x6 < x2; x6++ {
 			MF[x5>>3] = F(MF[x4>>3])
 			MF[(x5+8)>>3] = F(0.0)
 			x4 = I(x4 + 8)
 			x5 = I(x5 + 16)
 		}
-	default:
+	} else {
 		panic("trap")
 	}
 	dx(x0)
@@ -388,7 +388,7 @@ func atx(x0 I, x1 I) (r I) {
 		x9 = I(x9 + x10)
 		x7 = I(x7 + 4)
 	}
-	if x2 > 4 {
+	if x2 > 5 {
 		rl(x8)
 	}
 	if x6 == 1 {
@@ -479,13 +479,12 @@ func cal(x0 I, x1 I) (r I) {
 	if x3 == 2 {
 		rld(x0)
 		x8 = I(MI[x4>>2])
-		switch x6 {
-		case 1:
+		if 1 == x6 {
 			return MT[(x8+128)].(func(I, I) I)(fst(x1), MI[(x4+4)>>2])
-		case 2:
+		} else if 2 == x6 {
 			rld(x1)
 			return MT[x8].(func(I, I, I) I)(MI[x7>>2], MI[(x7+4)>>2], MI[(x4+4)>>2])
-		default:
+		} else {
 			panic("trap")
 		}
 	}
@@ -612,6 +611,9 @@ func lst(x0 I) (r I) {
 	if 7 == tp(x0) {
 		return lst(val(x0))
 	}
+	if 0 == nn(x0) {
+		return fst(x0)
+	}
 	return atx(x0, mki((nn(x0) - 1)))
 }
 func cut(x0 I, x1 I) (r I) {
@@ -710,7 +712,19 @@ func rsh(x0 I, x1 I) (r I) {
 		x10 = I(x10 / x13)
 		x10 = I(prod(x4, (x3 - x14)))
 		x11 = I(cut(seq(0, x10, x13), x11))
+		if 1 == x13 {
+			if x14 > 0 {
+				if 6 == tp(x11) {
+					x11 = I(ech(x11, 172))
+				} else {
+					x11 = I(enl(x11))
+				}
+			}
+		}
 		x12 = I(x12 - 4)
+	}
+	if 1 == MI[x12>>2] {
+		x11 = I(enl(x11))
 	}
 	dx(x0)
 	return x11
@@ -730,6 +744,9 @@ func take(x0 I, x1 I) (r I) {
 	//defer func(){fmt.Printf("take: r=%x\n", r)}()
 	var x2, x3, x4, x5, x6 I
 	_, _, _, _, _ = x2, x3, x4, x5, x6
+	if 0 == nn(x0) {
+		x0 = I(fst(x0))
+	}
 	x2 = I(nn(x0))
 	x3 = I(0)
 	if SI(x1) < SI(0) {
@@ -758,7 +775,7 @@ func drop(x0 I, x1 I) (r I) {
 	x4 = I(8 + x0)
 	x5 = I(x1)
 	if SI(x1) < SI(0) {
-		x1 = I(0 - x1)
+		x1 = I(-(x1))
 		x5 = I(0)
 	}
 	if x1 > x3 {
@@ -872,7 +889,7 @@ func ucat(x0 I, x1 I) (r I) {
 	x5 = I(tp(x1))
 	x6 = I(nn(x1))
 	x7 = I(8 + x1)
-	if x2 > 4 {
+	if x2 > 5 {
 		rl(x0)
 		rl(x1)
 	}
@@ -977,20 +994,22 @@ func wer(x0 I) (r I) {
 		panic("trap")
 	}
 	x4 = I(0)
-	for x7 = 0; x7 < x2; x7++ {
+	for x8 = 0; x8 < x2; x8++ {
 		x4 = I(x4 + MI[x3>>2])
 		x3 = I(x3 + 4)
 	}
 	x3 = I(8 + x0)
 	x5 = I(mk(2, x4))
 	x6 = I(x5 + 8)
-	for x7 = 0; x7 < x2; x7++ {
-		x8 = MI[x3>>2]
-		for x9 = 0; x9 < x8; x9++ {
+	x7 = I(0)
+	for x7 < x2 {
+		x9 = MI[x3>>2]
+		for x8 = 0; x8 < x9; x8++ {
 			MI[x6>>2] = I(x7)
 			x6 = I(x6 + 4)
 		}
 		x3 = I(x3 + 4)
+		x7 = I(x7 + 1)
 	}
 	dx(x0)
 	return x5
@@ -1020,20 +1039,19 @@ func match(x0 I, x1 I) (r I) {
 	x4 = I(8 + x0)
 	x5 = I(x1 + 8)
 	x6 = I(0)
-	switch x2 {
-	case 0:
+	if 0 == x2 {
 		return 1
-	case 1:
+	} else if 1 == x2 {
 		x7 = I(x3)
-	case 2:
+	} else if 2 == x2 {
 		x7 = I(x3 << 2)
-	case 3:
+	} else if 3 == x2 {
 		x7 = I(x3 << 3)
-	case 4:
+	} else if 4 == x2 {
 		x7 = I(x3 << 4)
-	case 5:
+	} else if 5 == x2 {
 		x7 = I(x3 << 2)
-	default:
+	} else {
 		for x8 = 0; x8 < x3; x8++ {
 			if 0 == match(MI[x4>>2], MI[x5>>2]) {
 				return 0
@@ -1186,7 +1204,7 @@ func fds(x0 I, x1 I) (r I) {
 	x9 = I(I(MC[x2]))
 	x10 = I(8 + x2)
 	x11 = I(0)
-	for x11 = 0; x11 < x3; x11++ {
+	for x11 < x3 {
 		x12 = I(0)
 		for x14 = 0; x14 < x6; x14++ {
 			x13 = I(x9 * x14)
@@ -1198,6 +1216,7 @@ func fds(x0 I, x1 I) (r I) {
 			x4 = I(x4 + (x9 * (x6 - 1)))
 		}
 		x4 = I(x4 + x9)
+		x11 = I(x11 + 1)
 	}
 	dx(x0)
 	dx(x1)
@@ -1296,14 +1315,11 @@ func eqi(x0 I, x1 I) (r I) {
 }
 func eqf(x0 I, x1 I) (r I) {
 	//defer func(){fmt.Printf("eqf: r=%x\n", r)}()
-	return i32b((MJ[x0>>3] == MJ[x1>>3]))
+	return (i32b((MI[x0>>2] == MI[x1>>2])) * i32b((MI[(x0+4)>>2] == MI[(x1+4)>>2])))
 }
 func eqz(x0 I, x1 I) (r I) {
 	//defer func(){fmt.Printf("eqz: r=%x\n", r)}()
-	if 0 != eqf(x0, x1) {
-		return eqf((x0 + 8), (x1 + 8))
-	}
-	return 0
+	return (eqf(x0, x1) * eqf((x0+8), (x1+8)))
 }
 func eqL(x0 I, x1 I) (r I) {
 	//defer func(){fmt.Printf("eqL: r=%x\n", r)}()
@@ -1679,7 +1695,7 @@ func abc(x0 I, x1 I) {
 	var x2 I
 	_ = x2
 	x2 = I(I(MC[x0]))
-	if 0 != craz(x2) {
+	if 0 != is(x2, 1) {
 		MC[x1] = C(C((x2 - 32)))
 	} else {
 		MC[x1] = C(C(x2))
@@ -1691,7 +1707,7 @@ func abi(x0 I, x1 I) {
 	_ = x2
 	x2 = I(MI[x0>>2])
 	if SI(x2) < SI(0) {
-		MI[x1>>2] = I((0 - x2))
+		MI[x1>>2] = I(-(x2))
 	} else {
 		MI[x1>>2] = I(x2)
 	}
@@ -1709,7 +1725,7 @@ func nec(x0 I, x1 I) {
 	var x2 I
 	_ = x2
 	x2 = I(I(MC[x0]))
-	if 0 != crAZ(x2) {
+	if 0 != is(x2, 2) {
 		MC[x1] = C(C((x2 + 32)))
 	} else {
 		MC[x1] = C(C(x2))
@@ -1717,7 +1733,7 @@ func nec(x0 I, x1 I) {
 }
 func nei(x0 I, x1 I) {
 	//defer func(){fmt.Printf("nei: r=%x\n", r)}()
-	MI[x1>>2] = I((0 - MI[x0>>2]))
+	MI[x1>>2] = I(-(MI[x0>>2]))
 }
 func nef(x0 I, x1 I) {
 	//defer func(){fmt.Printf("nef: r=%x\n", r)}()
@@ -1802,24 +1818,6 @@ func zan(x0 I, x1 I, x2 I) (r I) {
 	}
 	dx(x0)
 	return x3
-}
-func crAZ(x0 I) (r I) {
-	//defer func(){fmt.Printf("crAZ: r=%x\n", r)}()
-	if x0 > 64 {
-		if x0 < 91 {
-			return 1
-		}
-	}
-	return 0
-}
-func craz(x0 I) (r I) {
-	//defer func(){fmt.Printf("craz: r=%x\n", r)}()
-	if x0 > 96 {
-		if x0 < 123 {
-			return 1
-		}
-	}
-	return 0
 }
 func drv(x0 I, x1 I) (r I) {
 	//defer func(){fmt.Printf("drv: r=%x\n", r)}()
@@ -1966,6 +1964,10 @@ func ovs(x0 I, x1 I, x2 I, x3 I) (r I) {
 	var x4, x5, x6, x7 I
 	_, _, _, _ = x4, x5, x6, x7
 	x4 = I(nn(x0))
+	if 0 == (x4 + x3) {
+		x0 = I(enl(x0))
+		x4 = I(1)
+	}
 	rxn(x0, x4)
 	x5 = I(x3)
 	x6 = I(1)
@@ -2080,9 +2082,6 @@ func whl(x0 I, x1 I, x2 I, x3 I) (r I) {
 	x6 = I(mki(0))
 	for {
 		rx(x0)
-		rx(x2)
-		x5 = I(atx(x2, x5))
-		scl(x3, x5)
 		rx(x5)
 		x4 = I(atx(x0, x5))
 		if 0 != match(x4, x6) {
@@ -2097,6 +2096,9 @@ func whl(x0 I, x1 I, x2 I, x3 I) (r I) {
 			return x5
 		}
 		dx(x4)
+		rx(x2)
+		x5 = I(atx(x2, x5))
+		scl(x3, x5)
 	}
 	return x0
 }
@@ -2212,8 +2214,7 @@ func val(x0 I) (r I) {
 	x1 = I(tp(x0))
 	x2 = I(nn(x0))
 	x3 = I(8 + x0)
-	switch x1 {
-	case 0:
+	if 0 == x1 {
 		if x0 < 256 {
 			return x0
 		}
@@ -2224,23 +2225,23 @@ func val(x0 I) (r I) {
 			MI[(x4+20)>>2] = I(mki(MI[(x4+20)>>2]))
 		}
 		dx(x0)
-	case 1:
+	} else if 1 == x1 {
 		x4 = I(prs(x0))
-		x5 = I(i32b((58 == MI[(x4+8)>>2])))
+		x5 = I(i32b((2 < nn(x4))) * i32b((58 == MI[(x4+8)>>2])))
 		x4 = I(evl(x4))
 		if 0 != x5 {
 			dx(x4)
 			x4 = I(0)
 		}
-	case 5:
+	} else if 5 == x1 {
 		x4 = I(lup(x0))
-	case 6:
+	} else if 6 == x1 {
 		x4 = I(evl(x0))
-	case 7:
+	} else if 7 == x1 {
 		x4 = I(MI[(x0+12)>>2])
 		rx(x4)
 		dx(x0)
-	default:
+	} else {
 		panic("trap")
 	}
 	return x4
@@ -2870,6 +2871,9 @@ func out(x0 I) (r I) {
 	//defer func(){fmt.Printf("out: r=%x\n", r)}()
 	var x1 I
 	_ = x1
+	if 0 == x0 {
+		return x0
+	}
 	rx(x0)
 	x1 = I(x0)
 	if 1 != tp(x1) {
@@ -2921,16 +2925,15 @@ func kst(x0 I) (r I) {
 	} else {
 		x0 = I(str(x0))
 	}
-	switch x1 {
-	case 0:
+	if 0 == x1 {
 		x2 = I(x0)
-	case 1:
+	} else if 1 == x1 {
 		x2 = I(cc(ucat(mkc(34), x0), 34))
-	case 5:
+	} else if 5 == x1 {
 		x2 = I(ucat(mkc(96), jon(x0, mkc(96))))
-	case 6:
+	} else if 6 == x1 {
 		x2 = I(cc(ucat(mkc(40), jon(x0, mkc(59))), 41))
-	default:
+	} else {
 		x2 = I(jon(x0, mkc(32)))
 	}
 	return x2
@@ -2951,17 +2954,16 @@ func str(x0 I) (r I) {
 	if 0 != (i32b((x1 > 5)) + n32(i32b((x2 == 1)))) {
 		return ech(x0, 164)
 	}
-	switch x1 {
-	case 2:
+	if 2 == x1 {
 		x4 = I(ci(MI[x3>>2]))
-	case 3:
+	} else if 3 == x1 {
 		x4 = I(cf(MF[x3>>3]))
-	case 4:
+	} else if 4 == x1 {
 		x4 = I(cz(MF[x3>>3], MF[(x3+8)>>3]))
-	case 5:
+	} else if 5 == x1 {
 		rx(x0)
 		x4 = I(cs(x0))
-	default:
+	} else {
 		panic("trap")
 	}
 	dx(x0)
@@ -3027,7 +3029,7 @@ func ci(x0 I) (r I) {
 	}
 	x1 = I(0)
 	if SI(x0) < SI(0) {
-		x0 = I(0 - x0)
+		x0 = I(-(x0))
 		x1 = I(1)
 	}
 	x2 = I(mk(1, 0))
@@ -3415,20 +3417,21 @@ func tok(x0 I) (r I) {
 	}
 	return 0
 }
-func puj(x0 I, x1 I, x2 I) (r J) {
-	//defer func(){fmt.Printf("puj: r=%x\n", r)}()
-	var x3 J
+func pui(x0 I, x1 I, x2 I) (r I) {
+	//defer func(){fmt.Printf("pui: r=%x\n", r)}()
+	var x3 I
 	_ = x3
 	if 0 == is(x0, 4) {
 		return 0
 	}
+	x3 = I(0)
 	for 0 != (is(x0, 4) * i32b((x1 < x2))) {
-		x3 = J(x3 * 10)
-		x3 = J(x3 + J((x0 - 48)))
+		x3 = I(x3 * 10)
+		x3 = I(x3 + I((x0 - 48)))
 		x1 = I(x1 + 1)
 		x0 = I(I(MC[x1]))
 	}
-	if x3 == 0 {
+	if 0 != x3 {
 		if 120 == x0 {
 			return 0
 		}
@@ -3438,9 +3441,9 @@ func puj(x0 I, x1 I, x2 I) (r J) {
 }
 func pin(x0 I, x1 I, x2 I) (r I) {
 	//defer func(){fmt.Printf("pin: r=%x\n", r)}()
-	var x3 J
+	var x3 I
 	_ = x3
-	x3 = J(puj(x0, x1, x2))
+	x3 = I(pui(x0, x1, x2))
 	if x1 != MI[8>>2] {
 		return mki(I(x3))
 	}
@@ -3449,7 +3452,7 @@ func pin(x0 I, x1 I, x2 I) (r I) {
 		if x1 < x2 {
 			x0 = I(I(MC[x1]))
 			MI[8>>2] = I(x1)
-			x3 = J(puj(x0, x1, x2))
+			x3 = I(pui(x0, x1, x2))
 			if x1 != MI[8>>2] {
 				return mki(-(I(x3)))
 			}
@@ -3458,12 +3461,35 @@ func pin(x0 I, x1 I, x2 I) (r I) {
 	}
 	return 0
 }
+func pfd(x0 I, x1 I, x2 F) (r F) {
+	//defer func(){fmt.Printf("pfd: r=%x\n", r)}()
+	var x3 F
+
+	var x4 I
+	_, _ = x3, x4
+	x3 = F(1.0)
+	if x2 < 0.0 {
+		x3 = F(-(x3))
+	}
+	for {
+		x4 = I(I(MC[x0]))
+		if 0 != (i32b((x0 < x1)) * is(x4, 4)) {
+			x3 = F(x3 * 0.1)
+			x2 = F(x2 + (x3 * F((x4 - 48))))
+		} else {
+			MI[8>>2] = I(x0)
+			return x2
+		}
+		x0 = I(x0 + 1)
+	}
+	return x2
+}
 func pfl(x0 I, x1 I, x2 I) (r I) {
 	//defer func(){fmt.Printf("pfl: r=%x\n", r)}()
-	var x3, x4, x5, x7, x8, x9, x10, x11 I
+	var x3, x4, x5, x6, x7, x8 I
 
-	var x6 F
-	_, _, _, _, _, _, _, _, _ = x3, x4, x5, x6, x7, x8, x9, x10, x11
+	var x9 F
+	_, _, _, _, _, _, _ = x3, x4, x5, x6, x7, x8, x9
 	x3 = I(0)
 	if x0 == 45 {
 		x4 = I(I(MC[(x1 - 1)]))
@@ -3479,51 +3505,36 @@ func pfl(x0 I, x1 I, x2 I) (r I) {
 	}
 	if 46 == I(MC[x1]) {
 		x5 = I(up(x5, 2, 1))
-		x1 = I(x1 + 1)
-		MI[8>>2] = I(x1)
-		if x1 < x2 {
-			x0 = I(I(MC[x1]))
-			x6 = F(F(puj(x0, x1, x2)))
-			if x1 != MI[8>>2] {
-				x10 = (MI[8>>2] - x1)
-				for x11 = 0; x11 < x10; x11++ {
-					x6 = F(x6 / 10.0)
-				}
-				x7 = I(x5 + 8)
-				if MF[x7>>3] < 0.0 {
-					x6 = F(-(x6))
-				}
-				MF[x7>>3] = F((MF[x7>>3] + x6))
-			}
-		}
+		x6 = I(x5 + 8)
+		MF[x6>>3] = F(pfd((x1 + 1), x2, MF[x6>>3]))
 	}
 	x1 = I(MI[8>>2])
 	if x1 < x2 {
 		if 101 == I(MC[x1]) {
 			MI[8>>2] = I((x1 + 1))
-			x8 = I(pin(I(MC[(1+x1)]), (1 + x1), x2))
-			if 0 == x8 {
+			x7 = I(pin(I(MC[(1+x1)]), (1 + x1), x2))
+			if 0 == x7 {
 				MI[8>>2] = I(x1)
 				return x5
 			}
-			x9 = I(MI[(x8+8)>>2])
-			dx(x8)
-			x6 = F(MF[(x5+8)>>3])
-			for SI(x9) < SI(0) {
-				x6 = F(x6 / 10.0)
-				x9 = I(x9 + 1)
+			x8 = I(MI[(x7+8)>>2])
+			dx(x7)
+			x9 = F(MF[(x5+8)>>3])
+			for SI(x8) < SI(0) {
+				x9 = F(x9 / 10.0)
+				x8 = I(x8 + 1)
 			}
-			for x9 > 0 {
-				x6 = F(x6 * 10.0)
-				x9 = I(x9 - 1)
+			for x8 > 0 {
+				x9 = F(x9 * 10.0)
+				x8 = I(x8 - 1)
 			}
-			MF[(x5+8)>>3] = F(x6)
+			MF[(x5+8)>>3] = F(x9)
 		}
 	}
 	if 0 != x3 {
-		x6 = F(MF[(x5+8)>>3])
-		if x6 > 0.0 {
-			MF[(x5+8)>>3] = F(-(x6))
+		x9 = F(MF[(x5+8)>>3])
+		if x9 > 0.0 {
+			MF[(x5+8)>>3] = F(-(x9))
 		}
 	}
 	return x5
@@ -3663,18 +3674,19 @@ func phx(x0 I, x1 I) (r I) {
 	_, _, _, _ = x2, x3, x4, x5
 	x2 = I(mk(1, 0))
 	x3 = I(1)
+	x4 = I(0)
 	for {
-		x4 = I(I(MC[x0]))
-		if 0 != (i32b((x1 <= x0)) + n32(is(x4, 5))) {
+		x5 = I(I(MC[x0]))
+		if 0 != (i32b((x1 <= x0)) + n32(is(x5, 5))) {
 			MI[8>>2] = I(x0)
 			return x2
 		}
-		x4 = I(x4 - ((48 * i32b((x4 < 58))) + (87 * i32b((x4 > 96)))))
+		x5 = I(x5 - ((48 * i32b((x5 < 58))) + (87 * i32b((x5 > 96)))))
 		x3 = I(n32(x3))
 		if 0 != x3 {
-			x2 = I(cc(x2, (x4 + (x5 << 4))))
+			x2 = I(cc(x2, (x5 + (x4 << 4))))
 		}
-		x5 = I(x4)
+		x4 = I(x5)
 		x0 = I(x0 + 1)
 	}
 	return x0
