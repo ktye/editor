@@ -121,7 +121,8 @@ function Editor(win) {
 	})
 	
 	this.editor.on('contextmenu', function(cm, evt) {
-		// evt.preventDefault()
+		evt.preventDefault()
+		evt.stopPropagation()
 		return false
 	})
 
