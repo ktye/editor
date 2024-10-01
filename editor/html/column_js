@@ -74,7 +74,7 @@ function Column(layout) {
 	this.Close = function() {
 		this.layout.columns.splice(this.index, 1)
 		// recalculate index of remaining columns
-		for (var i=0; i<layout.columns; i++)
+		for (var i=0; i<layout.columns.length; i++)
 			layout.columns[i].index = i;
 		this.div.remove()
 	}
