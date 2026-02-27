@@ -2,7 +2,7 @@
 // It sends the editor content as a post request to the server
 // with additional data about the file name, the command being called and
 // the text selection range.
-function Call(win, command) {
+function Call(win, command) { console.log("Call", win, command);
 	var req = new XMLHttpRequest()
 
 	// This callback is executed when the server response has arrived.
@@ -19,8 +19,11 @@ function Call(win, command) {
 			}
 			
 			var newwin = win
+			let scrollwin,scrollTop=0
 			if (res.Replace == "") {
 				newwin = win.column.layout.FindWindow(res.Name)
+				let w=win.editordiv.querySelector(".CodeMirror-scroll")
+				if(w)scrollTop=w.scrollTop
 			} else {
 				newwin = win.column.layout.FindWindow(res.Replace)
 			}
@@ -51,6 +54,11 @@ function Call(win, command) {
 				newwin.editor.editor.focus()
 			}
 			newwin.MarkClean(res.Clean)
+			if(scrollTop){
+			 let w=win.editordiv.querySelector(".CodeMirror-scroll")
+			 if(w)w.scrollTop=scrollTop
+			}
+
 		}
 	}
 
